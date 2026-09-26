@@ -64,9 +64,9 @@ with open('index.json', 'w', encoding='utf-8') as f:
     json.dump(index_json, f, ensure_ascii=False, separators=(',', ':'))
 print('index.json written')
 
-# 3. repo.json (legacy wrapper; modern apps follow indexV2 to the new store)
+# 3. repo.json (legacy wrapper WITHOUT index_v2: modern clients then treat it as a
+#    legacy store and fetch <base>/index.min.json + <base>/apk/<apk> from the SAME base)
 repo = {
-    "index_v2": f"{BASE}/index.json",
     "meta": {
         "name": "风车漫画",
         "shortName": "风车",
@@ -78,16 +78,22 @@ with open('repo.json', 'w', encoding='utf-8') as f:
     json.dump(repo, f, ensure_ascii=False, separators=(',', ':'))
 print('repo.json written')
 
-# 4. index.min.json (legacy array for very old clients)
+# 4. index.min.json (legacy array; modern NetworkLegacyExtension requires the
+#    "sources" key present; old clients tolerate extra fields)
 legacy_entry = {
     "name": "风车漫画",
     "pkg": "eu.kanade.tachiyomi.extension.zh.fengchemh",
     "apk": APK,
     "lang": "zh",
     "code": SOURCE_ID,
-    "version": "1.0.0",
+    "version": "1.0.1",
     "nsfw": 0,
-    "hasReadme": False,
+    "sources": [{
+        "id": SOURCE_ID,
+        "lang": "zh",
+        "name": "风车漫画",
+        "baseUrl": "https://www.fengchemh.com",
+    }],
 }
 with open('index.min.json', 'w', encoding='utf-8') as f:
     f.write(json.dumps([legacy_entry], ensure_ascii=False, separators=(',', ':')))
