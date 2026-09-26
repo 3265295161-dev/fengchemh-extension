@@ -29,7 +29,7 @@ const sources = `[{"id":${JSON.stringify(id)},"lang":${JSON.stringify(tpl.lang)}
 const entry =
   `{"name":${JSON.stringify(tpl.name)},"pkg":${JSON.stringify(tpl.pkg)}` +
   `,"apk":${JSON.stringify(tpl.apk)},"lang":${JSON.stringify(tpl.lang)}` +
-  `,"code":${tpl.code},"version":${JSON.stringify(tpl.version)},"nsfw":${tpl.nsfw}` +
+  `,"code":${tpl.entryCode},"version":${JSON.stringify(tpl.version)},"nsfw":${tpl.nsfw}` +
   `,"sources":${sources}}`;
 
 fs.writeFileSync('index.min.json', `[${entry}]`);
