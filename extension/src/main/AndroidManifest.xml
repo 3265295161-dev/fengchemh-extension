@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Mirrors keiyoushi GenerateManifestTask output: application-level meta-data +
+     <uses-feature android:name="tachiyomi.extension"/> are what Mihon/Tachimanga
+     read to recognise an extension APK. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application android:label="风车漫画">
-        <provider
-            android:name=".FengcheMhFactory"
-            android:authorities="eu.kanade.tachiyomi.extension.zh.fengchemh"
-            android:exported="true">
-            <meta-data
-                android:name="tachiyomi.extension.class"
-                android:value="eu.kanade.tachiyomi.extension.zh.fengchemh.FengcheMhFactory" />
-            <meta-data
-                android:name="tachiyomix.extensionLib"
-                android:value="1.6" />
-        </provider>
+    <uses-feature android:name="tachiyomi.extension" />
+
+    <application
+        android:allowBackup="false"
+        android:label="Tachiyomi: 风车漫画">
+        <meta-data
+            android:name="tachiyomix.name"
+            android:value="风车漫画" />
+        <meta-data
+            android:name="tachiyomi.extension.class"
+            android:value="eu.kanade.tachiyomi.extension.zh.fengchemh.FengcheMhFactory" />
+        <meta-data
+            android:name="tachiyomi.extension.nsfw"
+            android:value="0" />
+        <meta-data
+            android:name="tachiyomix.contentWarning"
+            android:value="0" />
+        <meta-data
+            android:name="tachiyomix.extensionLib"
+            android:value="1.4" />
     </application>
 </manifest>

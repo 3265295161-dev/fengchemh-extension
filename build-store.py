@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sto
 import extension_store_pb2 as pb
 
 REPO = "3265295161-dev/fengchemh-extension"
-APK = "fengchemh-v1.0.1.apk"
+APK = "fengchemh-v1.0.2.apk"
 SOURCE_ID = 517481997322915305
 SIG = "6a8a841d87d870b38af2d14b8fabd67fb6fd6d1954964df4059696a46ee44b0d"
 
@@ -44,9 +44,9 @@ def build_store(apk_url, icon_url=""):
     e.package_name = "eu.kanade.tachiyomi.extension.zh.fengchemh"
     e.resources.apk_url = apk_url
     e.resources.icon_url = icon_url
-    e.extension_lib = "1.6"
-    e.version_code = 2
-    e.version_name = "1.0.1"
+    e.extension_lib = "1.4"
+    e.version_code = 3
+    e.version_name = "1.0.2"
     e.content_warning = pb.NetworkExtensionStore.CONTENT_WARNING_SAFE
     s = e.sources.add()
     s.id = SOURCE_ID
@@ -72,9 +72,9 @@ index_json = {
             "name": "风车漫画",
             "packageName": "eu.kanade.tachiyomi.extension.zh.fengchemh",
             "resources": {"apkUrl": FASTLY_APK, "iconUrl": FASTLY_ICON},
-            "extensionLib": "1.6",
-            "versionCode": 2,
-            "versionName": "1.0.1",
+            "extensionLib": "1.4",
+            "versionCode": 3,
+            "versionName": "1.0.2",
             "contentWarning": "CONTENT_WARNING_SAFE",
             "sources": [{"id": SOURCE_ID, "name": "风车漫画", "language": "zh", "homeUrl": "https://www.fengchemh.com"}],
         }],
@@ -105,7 +105,7 @@ legacy_entry = {
     "apk": APK,
     "lang": "zh",
     "code": SOURCE_ID,
-    "version": "1.0.1",
+    "version": "1.0.2",
     "nsfw": 0,
     "sources": [{
         "id": SOURCE_ID,
