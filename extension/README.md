@@ -95,11 +95,17 @@ node build-index.js   # 生成 index.min.json，并校验源 ID
 
 - 仓库：https://github.com/3265295161-dev/fengchemh-extension
 - Pages：https://3265295161-dev.github.io/fengchemh-extension/
-- **Tachimanga 扩展仓库 URL：**
-  `https://3265295161-dev.github.io/fengchemh-extension/index.min.json`
-- 备用 raw 链接：`https://raw.githubusercontent.com/3265295161-dev/fengchemh-extension/main/index.min.json`
+- **Tachimanga 扩展仓库 URL（国内推荐，raw 直连）：**
+  `https://raw.githubusercontent.com/3265295161-dev/fengchemh-extension/main/index.min.json`
+- 备用 1（jsDelivr，commit 固定版本避免缓存）：
+  `https://fastly.jsdelivr.net/gh/3265295161-dev/fengchemh-extension@<commit>/index.min.json`
+- 备用 2（GitHub Pages）：`https://3265295161-dev.github.io/fengchemh-extension/index.min.json`
 
-> 更新版本时：重新 `./gradlew assembleRelease` → 把新 APK 复制到仓库根 → 重跑 `node build-index.js` → `git add -A && git commit && git push`，Pages 自动重新发布。
+> ⚠️ 索引必须使用**新版 schema**：`code` 为小整数、`version` 为字符串、含
+> `sources[]`（`id` 为字符串）；旧版格式（`hasReadme`、大整数 `code`）会被
+> Tachimanga/Mihon 判为「无法获取仓库信息，插件仓库不存在」。
+
+> 更新版本时：重新 `./gradlew assembleRelease` → 把新 APK 复制到仓库根 → 重跑 `node build-index.js` → `git add -A && git commit && git push`，Pages 自动重新发布（jsDelivr 用 `@<commit>` 固定版本可绕过缓存）。
 
 ### 4.3 通用托管（如换账号/自建仓库）
 
