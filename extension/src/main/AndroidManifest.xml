@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application android:label="风车漫画">
+        <provider
+            android:name=".FengcheMhFactory"
+            android:authorities="eu.kanade.tachiyomi.extension.zh.fengchemh"
+            android:exported="true">
+            <meta-data
+                android:name="tachiyomi.extension.class"
+                android:value="eu.kanade.tachiyomi.extension.zh.fengchemh.FengcheMhFactory" />
+        </provider>
+    </application>
+</manifest>
