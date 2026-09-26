@@ -29,9 +29,10 @@ print('pinned commit:', C)
 
 FASTLY_INDEX = f"https://fastly.jsdelivr.net/gh/{REPO}@{C}/index.json"
 FASTLY_APK = f"https://fastly.jsdelivr.net/gh/{REPO}@{C}/{APK}"
+FASTLY_ICON = f"https://fastly.jsdelivr.net/gh/{REPO}@{C}/icon/eu.kanade.tachiyomi.extension.zh.fengchemh.png"
 
 
-def build_store(apk_url):
+def build_store(apk_url, icon_url=""):
     store = pb.NetworkExtensionStore(
         name="风车漫画",
         badge_label="风车",
@@ -42,7 +43,7 @@ def build_store(apk_url):
     e.name = "风车漫画"
     e.package_name = "eu.kanade.tachiyomi.extension.zh.fengchemh"
     e.resources.apk_url = apk_url
-    e.resources.icon_url = ""
+    e.resources.icon_url = icon_url
     e.extension_lib = "1.6"
     e.version_code = 2
     e.version_name = "1.0.1"
@@ -57,7 +58,7 @@ def build_store(apk_url):
 
 # 1. index.pb (new format, protobuf, gzipped; APK via jsDelivr)
 with open('index.pb', 'wb') as f:
-    f.write(gzip.compress(build_store(FASTLY_APK).SerializeToString(), 9))
+    f.write(gzip.compress(build_store(FASTLY_APK, FASTLY_ICON).SerializeToString(), 9))
 print('index.pb written (apk via fastly)')
 
 # 2. index.json (new format, JSON; APK via jsDelivr)
@@ -70,7 +71,7 @@ index_json = {
         "extensions": [{
             "name": "风车漫画",
             "packageName": "eu.kanade.tachiyomi.extension.zh.fengchemh",
-            "resources": {"apkUrl": FASTLY_APK, "iconUrl": ""},
+            "resources": {"apkUrl": FASTLY_APK, "iconUrl": FASTLY_ICON},
             "extensionLib": "1.6",
             "versionCode": 2,
             "versionName": "1.0.1",
@@ -118,11 +119,11 @@ with open('index.min.json', 'w', encoding='utf-8') as f:
 print('index.min.json written (legacy)')
 
 # 5. alternate stores with other APK hosts
-def write_variant(name, apk_url):
+def write_variant(name, apk_url, icon_url=""):
     with open(name, 'wb') as f:
-        f.write(gzip.compress(build_store(apk_url).SerializeToString(), 9))
+        f.write(gzip.compress(build_store(apk_url, icon_url).SerializeToString(), 9))
     print(name, 'written')
 
-write_variant('index-pages.pb', f"https://3265295161-dev.github.io/{REPO}/{APK}")
-write_variant('index-ghproxy.pb', f"https://ghproxy.net/https://raw.githubusercontent.com/{REPO}/main/{APK}")
-write_variant('index-jsdelivr.pb', FASTLY_APK)
+write_variant('index-pages.pb', f"https://3265295161-dev.github.io/fengchemh-extension/{APK}", f"https://3265295161-dev.github.io/fengchemh-extension/icon/eu.kanade.tachiyomi.extension.zh.fengchemh.png")
+write_variant('index-ghproxy.pb', f"https://ghproxy.net/https://raw.githubusercontent.com/{REPO}/main/{APK}", f"https://ghproxy.net/https://raw.githubusercontent.com/{REPO}/main/icon/eu.kanade.tachiyomi.extension.zh.fengchemh.png")
+write_variant('index-jsdelivr.pb', FASTLY_APK, FASTLY_ICON)
