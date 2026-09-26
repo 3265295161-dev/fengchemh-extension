@@ -91,7 +91,17 @@ cd extension
 node build-index.js   # 生成 index.min.json，并校验源 ID
 ```
 
-### 4.2 上传到 GitHub（推荐）
+### 4.2 已上线仓库（本仓库已部署）
+
+- 仓库：https://github.com/3265295161-dev/fengchemh-extension
+- Pages：https://3265295161-dev.github.io/fengchemh-extension/
+- **Tachimanga 扩展仓库 URL：**
+  `https://3265295161-dev.github.io/fengchemh-extension/index.min.json`
+- 备用 raw 链接：`https://raw.githubusercontent.com/3265295161-dev/fengchemh-extension/main/index.min.json`
+
+> 更新版本时：重新 `./gradlew assembleRelease` → 把新 APK 复制到仓库根 → 重跑 `node build-index.js` → `git add -A && git commit && git push`，Pages 自动重新发布。
+
+### 4.3 通用托管（如换账号/自建仓库）
 
 1. 建一个公开仓库（例如 `fengchemh-extension`）；
 2. 上传：`fengchemh-v1.0.0.apk`、`index.min.json`、`README.md`；
@@ -100,7 +110,7 @@ node build-index.js   # 生成 index.min.json，并校验源 ID
 4. **方式 B（raw 链接）**：直接使用
    - `https://raw.githubusercontent.com/<你的用户名>/fengchemh-extension/main/index.min.json`
 
-### 4.3 在 Tachimanga / Mihon 中安装
+### 4.4 在 Tachimanga / Mihon 中安装
 
 1. 打开 App → **浏览 → 扩展**（或 设置 → 扩展）；
 2. 右上角 **三点菜单 → 扩展仓库**（Add repository）；
