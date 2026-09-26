@@ -24,7 +24,8 @@ SIG = "6a8a841d87d870b38af2d14b8fabd67fb6fd6d1954964df4059696a46ee44b0d"
 
 # Commit that already contains the APK + index files (captured BEFORE this
 # script commits anything, so the pinned jsDelivr URL stays valid forever).
-C = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip()
+import os
+C = os.environ.get('PIN', '') or subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip()
 print('pinned commit:', C)
 
 FASTLY_INDEX = f"https://fastly.jsdelivr.net/gh/{REPO}@{C}/index.json"
