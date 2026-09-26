@@ -1,57 +1,76 @@
 #!/usr/bin/env python3
-# Generates the full set of extension-store files for the fengchemh repo:
-#   index.pb      - new-format protobuf store (gzipped, like keiyoushi)
-#   index.json    - new-format JSON store
-#   repo.json     - legacy meta wrapper with indexV2 -> index.json
-#   index.min.json- legacy array (kept for very old clients)
-# Run from repo root. Requires: python3, protobuf, grpcio-tools (compiled extension_store_pb2).
-import gzip, json, sys, os
+# Generates the full set of extension-store files for the fengchemh repo.
+#
+# Routing strategy (fix for "internal server error" when downloading the APK
+# from GitHub raw inside mainland China):
+#   - index.pb / index.json : new-format stores; apkUrl points to jsDelivr CDN
+#     (commit-pinned, no cache issues) so the APK downloads through a China-
+#     friendly host while the index itself can be served from anywhere.
+#   - repo.json            : legacy wrapper WITH index_v2 -> fastly index.json,
+#     so a modern client adding .../index.min.json gets routed to the new store
+#     and downloads the APK from jsDelivr too.
+#   - index.min.json       : legacy array (for very old clients that ignore
+#     repo.json; apk is then fetched from <base>/apk/<apk>).
+# Run from repo root. Requires: python3, grpcio-tools (schema in store-schema/).
+import gzip, json, sys, os, subprocess
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'store-schema'))
-from google.protobuf import json_format
 import extension_store_pb2 as pb
 
-BASE = "https://raw.githubusercontent.com/3265295161-dev/fengchemh-extension/main"
+REPO = "3265295161-dev/fengchemh-extension"
 APK = "fengchemh-v1.0.1.apk"
 SOURCE_ID = 517481997322915305
+SIG = "6a8a841d87d870b38af2d14b8fabd67fb6fd6d1954964df4059696a46ee44b0d"
 
-store = pb.NetworkExtensionStore(
-    name="风车漫画",
-    badge_label="风车",
-    signing_key="6a8a841d87d870b38af2d14b8fabd67fb6fd6d1954964df4059696a46ee44b0d",
-    contact=pb.NetworkExtensionStore.Contact(website="https://www.fengchemh.com"),
-)
-ext = store.extension_list.extensions.add()
-ext.name = "风车漫画"
-ext.package_name = "eu.kanade.tachiyomi.extension.zh.fengchemh"
-ext.resources.apk_url = f"{BASE}/{APK}"
-ext.resources.icon_url = ""
-ext.extension_lib = "1.6"
-ext.version_code = 2
-ext.version_name = "1.0.1"
-ext.content_warning = pb.NetworkExtensionStore.CONTENT_WARNING_SAFE
-src = ext.sources.add()
-src.id = SOURCE_ID
-src.name = "风车漫画"
-src.language = "zh"
-src.home_url = "https://www.fengchemh.com"
+# Commit that already contains the APK + index files (captured BEFORE this
+# script commits anything, so the pinned jsDelivr URL stays valid forever).
+C = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip()
+print('pinned commit:', C)
 
-# 1. index.pb (gzipped, same as keiyoushi serves)
+FASTLY_INDEX = f"https://fastly.jsdelivr.net/gh/{REPO}@{C}/index.json"
+FASTLY_APK = f"https://fastly.jsdelivr.net/gh/{REPO}@{C}/{APK}"
+
+
+def build_store(apk_url):
+    store = pb.NetworkExtensionStore(
+        name="风车漫画",
+        badge_label="风车",
+        signing_key=SIG,
+        contact=pb.NetworkExtensionStore.Contact(website="https://www.fengchemh.com"),
+    )
+    e = store.extension_list.extensions.add()
+    e.name = "风车漫画"
+    e.package_name = "eu.kanade.tachiyomi.extension.zh.fengchemh"
+    e.resources.apk_url = apk_url
+    e.resources.icon_url = ""
+    e.extension_lib = "1.6"
+    e.version_code = 2
+    e.version_name = "1.0.1"
+    e.content_warning = pb.NetworkExtensionStore.CONTENT_WARNING_SAFE
+    s = e.sources.add()
+    s.id = SOURCE_ID
+    s.name = "风车漫画"
+    s.language = "zh"
+    s.home_url = "https://www.fengchemh.com"
+    return store
+
+
+# 1. index.pb (new format, protobuf, gzipped; APK via jsDelivr)
 with open('index.pb', 'wb') as f:
-    f.write(gzip.compress(store.SerializeToString(), 9))
-print('index.pb:', os.path.getsize('index.pb'), 'bytes (gzipped)')
+    f.write(gzip.compress(build_store(FASTLY_APK).SerializeToString(), 9))
+print('index.pb written (apk via fastly)')
 
-# 2. index.json (new format, JSON - manual dict so int64 stay JSON numbers for kotlinx)
+# 2. index.json (new format, JSON; APK via jsDelivr)
 index_json = {
     "name": "风车漫画",
     "badgeLabel": "风车",
-    "signingKey": "6a8a841d87d870b38af2d14b8fabd67fb6fd6d1954964df4059696a46ee44b0d",
+    "signingKey": SIG,
     "contact": {"website": "https://www.fengchemh.com"},
     "extensionList": {
         "extensions": [{
             "name": "风车漫画",
             "packageName": "eu.kanade.tachiyomi.extension.zh.fengchemh",
-            "resources": {"apkUrl": f"{BASE}/{APK}", "iconUrl": ""},
+            "resources": {"apkUrl": FASTLY_APK, "iconUrl": ""},
             "extensionLib": "1.6",
             "versionCode": 2,
             "versionName": "1.0.1",
@@ -62,24 +81,23 @@ index_json = {
 }
 with open('index.json', 'w', encoding='utf-8') as f:
     json.dump(index_json, f, ensure_ascii=False, separators=(',', ':'))
-print('index.json written')
+print('index.json written (apk via fastly)')
 
-# 3. repo.json (legacy wrapper WITHOUT index_v2: modern clients then treat it as a
-#    legacy store and fetch <base>/index.min.json + <base>/apk/<apk> from the SAME base)
+# 3. repo.json (legacy wrapper; index_v2 routes modern clients to fastly store)
 repo = {
+    "index_v2": FASTLY_INDEX,
     "meta": {
         "name": "风车漫画",
         "shortName": "风车",
         "website": "https://www.fengchemh.com",
-        "signingKeyFingerprint": "6a8a841d87d870b38af2d14b8fabd67fb6fd6d1954964df4059696a46ee44b0d",
+        "signingKeyFingerprint": SIG,
     },
 }
 with open('repo.json', 'w', encoding='utf-8') as f:
     json.dump(repo, f, ensure_ascii=False, separators=(',', ':'))
-print('repo.json written')
+print('repo.json written (index_v2 -> fastly)')
 
-# 4. index.min.json (legacy array; modern NetworkLegacyExtension requires the
-#    "sources" key present; old clients tolerate extra fields)
+# 4. index.min.json (legacy array for very old clients)
 legacy_entry = {
     "name": "风车漫画",
     "pkg": "eu.kanade.tachiyomi.extension.zh.fengchemh",
@@ -97,4 +115,14 @@ legacy_entry = {
 }
 with open('index.min.json', 'w', encoding='utf-8') as f:
     f.write(json.dumps([legacy_entry], ensure_ascii=False, separators=(',', ':')))
-print('index.min.json written')
+print('index.min.json written (legacy)')
+
+# 5. alternate stores with other APK hosts
+def write_variant(name, apk_url):
+    with open(name, 'wb') as f:
+        f.write(gzip.compress(build_store(apk_url).SerializeToString(), 9))
+    print(name, 'written')
+
+write_variant('index-pages.pb', f"https://3265295161-dev.github.io/{REPO}/{APK}")
+write_variant('index-ghproxy.pb', f"https://ghproxy.net/https://raw.githubusercontent.com/{REPO}/main/{APK}")
+write_variant('index-jsdelivr.pb', FASTLY_APK)
