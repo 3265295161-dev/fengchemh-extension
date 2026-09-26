@@ -8,10 +8,10 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        minSdk = 21
+        minSdk = 26
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.0.2"
+        versionCode = 4
+        versionName = "1.0.3"
     }
 
     compileOptions {
@@ -23,6 +23,12 @@ android {
         // AGP 8.5's lint cannot parse Kotlin 2.3 metadata of extensions-lib; skip it.
         checkReleaseBuilds = false
         abortOnError = false
+    }
+
+    packaging {
+        resources {
+            excludes += setOf("kotlin-tooling-metadata.json", "META-INF/version-control-info.textproto", "META-INF/README.md")
+        }
     }
 
     buildTypes {
