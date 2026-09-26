@@ -7,18 +7,18 @@
 # Run from repo root. Requires: python3, protobuf, grpcio-tools (compiled extension_store_pb2).
 import gzip, json, sys, os
 
-sys.path.insert(0, '/tmp')
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'store-schema'))
 from google.protobuf import json_format
 import extension_store_pb2 as pb
 
 BASE = "https://raw.githubusercontent.com/3265295161-dev/fengchemh-extension/main"
-APK = "fengchemh-v1.0.0.apk"
+APK = "fengchemh-v1.0.1.apk"
 SOURCE_ID = 517481997322915305
 
 store = pb.NetworkExtensionStore(
     name="风车漫画",
     badge_label="风车",
-    signing_key="",
+    signing_key="6a8a841d87d870b38af2d14b8fabd67fb6fd6d1954964df4059696a46ee44b0d",
     contact=pb.NetworkExtensionStore.Contact(website="https://www.fengchemh.com"),
 )
 ext = store.extension_list.extensions.add()
@@ -27,8 +27,8 @@ ext.package_name = "eu.kanade.tachiyomi.extension.zh.fengchemh"
 ext.resources.apk_url = f"{BASE}/{APK}"
 ext.resources.icon_url = ""
 ext.extension_lib = "1.6"
-ext.version_code = 1
-ext.version_name = "1.0.0"
+ext.version_code = 2
+ext.version_name = "1.0.1"
 ext.content_warning = pb.NetworkExtensionStore.CONTENT_WARNING_SAFE
 src = ext.sources.add()
 src.id = SOURCE_ID
@@ -45,7 +45,7 @@ print('index.pb:', os.path.getsize('index.pb'), 'bytes (gzipped)')
 index_json = {
     "name": "风车漫画",
     "badgeLabel": "风车",
-    "signingKey": "",
+    "signingKey": "6a8a841d87d870b38af2d14b8fabd67fb6fd6d1954964df4059696a46ee44b0d",
     "contact": {"website": "https://www.fengchemh.com"},
     "extensionList": {
         "extensions": [{
@@ -53,8 +53,8 @@ index_json = {
             "packageName": "eu.kanade.tachiyomi.extension.zh.fengchemh",
             "resources": {"apkUrl": f"{BASE}/{APK}", "iconUrl": ""},
             "extensionLib": "1.6",
-            "versionCode": 1,
-            "versionName": "1.0.0",
+            "versionCode": 2,
+            "versionName": "1.0.1",
             "contentWarning": "CONTENT_WARNING_SAFE",
             "sources": [{"id": SOURCE_ID, "name": "风车漫画", "language": "zh", "homeUrl": "https://www.fengchemh.com"}],
         }],
@@ -71,7 +71,7 @@ repo = {
         "name": "风车漫画",
         "shortName": "风车",
         "website": "https://www.fengchemh.com",
-        "signingKeyFingerprint": "",
+        "signingKeyFingerprint": "6a8a841d87d870b38af2d14b8fabd67fb6fd6d1954964df4059696a46ee44b0d",
     },
 }
 with open('repo.json', 'w', encoding='utf-8') as f:

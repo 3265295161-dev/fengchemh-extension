@@ -8,6 +8,9 @@
             <meta-data
                 android:name="tachiyomi.extension.class"
                 android:value="eu.kanade.tachiyomi.extension.zh.fengchemh.FengcheMhFactory" />
+            <meta-data
+                android:name="tachiyomix.extensionLib"
+                android:value="1.6" />
         </provider>
     </application>
 </manifest>
